@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Microorm.Dapper.Repositories by phnx47</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Microorm.Dapper.Repositories</h1>
+      <h2 class="project-tagline">Repository for CRUD operations</h2>
+      <a href="https://github.com/phnx47/MicroOrm.Dapper.Repositories" class="btn">View on GitHub</a>
+      <a href="https://github.com/phnx47/MicroOrm.Dapper.Repositories/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/phnx47/MicroOrm.Dapper.Repositories/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="microormdapperrepositories" class="anchor" href="#microormdapperrepositories" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>MicroOrm.Dapper.Repositories</h1>
+
+<p><a href="https://www.nuget.org/packages/MicroOrm.Dapper.Repositories"><img src="https://img.shields.io/nuget/v/MicroOrm.Dapper.Repositories.svg" alt="Latest version"></a>  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License MIT"></a> <a href="https://ci.appveyor.com/project/phnx47/microorm-dapper-repositories"><img src="https://ci.appveyor.com/api/projects/status/5v68lbhwc9d4948g?svg=true" alt="Build status"></a></p>
+
+<p>If you like your code runs fast, probably you know about Micro ORMs.
+They are simple and one of their main goals is be the fastest way to execute your SQL sentences on your data repositories.
+However, for some of them you need to write your own SQL sentences. This is the case of the most popular Micro ORM <a href="https://github.com/StackExchange/dapper-dot-net">Dapper</a></p>
+
+<p>The idea of this tool is to abstract the generation of the SQL sentence for CRUD operations based on each POCO class "metadata".
+We know there are plugins for both Micro ORMs to implement the execution of this kind of tasks,
+but that's exactly the difference of this tool. The "SQL Generator" is a generic component
+that generates all the CRUD sentences for a POCO class based on its definition with the possibility to override the way the SQL generator builds each sentence.</p>
+
+<p>I tested this with MSSQL, PostgreSQL and MySQL .</p>
+
+<pre><code>PM&gt; Install-Package MicroOrm.Dapper.Repositories
+</code></pre>
+
+<h2>
+<a id="goals" class="anchor" href="#goals" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Goals</h2>
+
+<ul>
+<li> Avoid writing SQL.</li>
+<li> Avoid possible overwhelming of your application by using Reflection on each CRUD operation execution.</li>
+<li> Abstract the SQL generation process and reuse the same implementation with both Micro ORMs <a href="https://github.com/StackExchange/dapper-dot-net">Dapper</a>
+</li>
+</ul>
+
+<h2>
+<a id="metadata-attributes" class="anchor" href="#metadata-attributes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Metadata attributes</h2>
+
+<h3>
+<a id="key" class="anchor" href="#key" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>[Key]</h3>
+
+<p>From System.ComponentModel.DataAnnotations</p>
+
+<h3>
+<a id="table" class="anchor" href="#table" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>[Table]</h3>
+
+<p>From System.ComponentModel.DataAnnotations.Schema - By default the database table name will match the model name but it can be overridden with this.</p>
+
+<h3>
+<a id="column" class="anchor" href="#column" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>[Column]</h3>
+
+<p>From System.ComponentModel.DataAnnotations.Schema - By default the column name will match the property name but it can be overridden with this.</p>
+
+<h3>
+<a id="notmapped" class="anchor" href="#notmapped" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>[NotMapped]</h3>
+
+<p>From System.ComponentModel.DataAnnotations.Schema - For "logical" properties that does not have a corresponding column and have to be ignored by the SQL Generator.</p>
+
+<h3>
+<a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>[Status]</h3>
+
+<p>For tables that implements "logical deletes" instead of physical deletes. This attribute can decorate only <code>enum</code> properties and one of the possible values for that enumeration has to be decorated with the "Deleted" attribute</p>
+
+<h3>
+<a id="deleted" class="anchor" href="#deleted" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>[Deleted]</h3>
+
+<p>Brother of the previous attribute. Use this to decorate the enum value that specifies the logical delete value for the status property. </p>
+
+<h3>
+<a id="identity" class="anchor" href="#identity" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>[Identity]</h3>
+
+<p>Use for identity key.</p>
+
+<h2>
+<a id="some-notes" class="anchor" href="#some-notes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Some notes</h2>
+
+<ul>
+<li> By default the SQL Generator is going to map the POCO name with the table name, and each public property to a column.</li>
+<li> If the <code>Status</code> is used on a certain POCO, the "delete" sentence will be an update instead of a delete.</li>
+<li> Complex primary keys are supported.</li>
+</ul>
+
+<h1>
+<a id="sql-sentences" class="anchor" href="#sql-sentences" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SQL Sentences</h1>
+
+<p>Lets see some SQL sentences examples that this tool will create. "Users" POCO:</p>
+
+<pre><code>[Table("Users")]
+public class User
+{
+    [Key]
+    [Identity]
+    public int Id { get; set; }
+
+    public string Login { get; set;}
+
+    [Column("FName")]
+    public string FirstName { get; set; }
+
+    [Column("LName")]
+    public string LastName { get; set; }
+
+    public string Email { get; set; }
+
+    [Status]
+    public UserStatus Status { get; set; }
+
+    [NotMapped]
+    public string FullName
+    {
+        get
+        {
+            return string.Format("{0} {1}", FirstName, LastName);
+        }
+    }
+}
+
+public enum UserStatus
+{
+    Active = 0,
+
+    Inactive = 1,
+
+    [Deleted]
+    Deleted = 2
+}
+</code></pre>
+
+<p>Implements the repository:</p>
+
+<pre><code>public class UserRepository : DapperRepository&lt;User&gt;
+{
+
+    public UserRepository(IDbConnection connection, ISqlGenerator&lt;User&gt; sqlGenerator)
+        : base(connection, sqlGenerator)
+    {
+
+
+    }
+}
+</code></pre>
+
+<p>Simple as that, we have defined a fully functional data repository for the "User" POCO. Because the inheritance pattern we are doing here, both repository contract and repository implementation contains this functions:</p>
+
+<pre><code>    bool Delete(TEntity instance);
+
+    Task&lt;bool&gt; DeleteAsync(TEntity instance);
+
+    TEntity Find(Expression&lt;Func&lt;TEntity, bool&gt;&gt; expression);
+
+    IEnumerable&lt;TEntity&gt; FindAll();
+
+    IEnumerable&lt;TEntity&gt; FindAll(Expression&lt;Func&lt;TEntity, bool&gt;&gt; expression);
+
+    Task&lt;IEnumerable&lt;TEntity&gt;&gt; FindAllAsync();
+
+    Task&lt;IEnumerable&lt;TEntity&gt;&gt; FindAllAsync(Expression&lt;Func&lt;TEntity, bool&gt;&gt; expression);
+
+    Task&lt;TEntity&gt; FindAsync(Expression&lt;Func&lt;TEntity, bool&gt;&gt; expression);
+
+    bool Insert(TEntity instance);
+
+    Task&lt;bool&gt; InsertAsync(TEntity instance);
+
+    bool Update(TEntity instance);
+
+    Task&lt;bool&gt; UpdateAsync(TEntity instance);
+</code></pre>
+
+<p>Example:</p>
+
+<pre><code>var user = await userRepository.FindAsync(x =&gt; x.Id == 5);
+
+var allUsers = await userRepository.FindAllAsync(x =&gt; x.AccountId == 3 &amp;&amp; x.Status != UserStatus.Deleted); // all users for 3 account and not deleted
+</code></pre>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/phnx47/MicroOrm.Dapper.Repositories">Microorm.Dapper.Repositories</a> is maintained by <a href="https://github.com/phnx47">phnx47</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
